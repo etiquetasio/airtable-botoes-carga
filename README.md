@@ -12,7 +12,7 @@ Esta é uma extensão customizada para o Airtable que permite disparar webhooks 
 Se você está recebendo o erro `remote.json should be a non-null object` ou problemas com o `block init`, siga estes passos exatos:
 
 ### 1. Limpeza de Cache (Obrigatório se houver erro)
-No seu terminal (dentro da pasta `pullman-vo`), delete a pasta de configuração oculta que está corrompida:
+No seu terminal (dentro da pasta `airtable-botoes-carga`), delete a pasta de configuração oculta que está corrompida:
 - No Windows (CMD): `rmdir /s /q .block`
 - No Windows (PowerShell): `Remove-Item -Recurse -Force .block`
 - No Mac/Linux: `rm -rf .block`
@@ -34,8 +34,8 @@ block run
 
 ### Se o `set-remote` não funcionar:
 Se o comando acima disser que não é um diretório de bloco, faça o seguinte:
-1. Renomeie sua pasta atual para `pullman-vo-backup`.
-2. Crie uma nova pasta vazia com o nome `pullman-vo` e entre nela.
+1. Renomeie sua pasta atual para `airtable-botoes-carga-backup`.
+2. Crie uma nova pasta vazia com o nome `airtable-botoes-carga` e entre nela.
 3. Rode o comando init original: `block init appBP7blwMcpT3Qao/blk0FRHFL4SJaAMyY .`
 4. Copie os arquivos da pasta `src` do backup para a nova pasta `src`.
 5. Substitua também os arquivos `block.json`, `package.json` e `vite.config.ts` se necessário.
