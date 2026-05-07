@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertCircle, RefreshCw, Database, ChefHat } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, RefreshCw, Database, ChefHat, Tag } from 'lucide-react';
 
 // Webhook URLs
-const ALERGENICOS_URL = 'https://n8n-railway.etiquetas.io/webhook/alergenicos-vo';
-const CARGA_FULL_URL = 'https://n8n-railway.etiquetas.io/webhook/carga-full-vo';
+const CARGA_FULL_URL = 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-pratos';
+const ALERGENICOS_URL = 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-alergenicos';
+const ETIQUETAS_LIVRE_URL = 'https://n8n-railway.etiquetas.io/webhook/ibira-tudo-livre';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -14,8 +15,9 @@ interface ActionState {
 }
 
 export default function App() {
-  const [alergenicosState, setAlergenicosState] = useState<ActionState>({ status: 'idle', message: '' });
   const [cargaFullState, setCargaFullState] = useState<ActionState>({ status: 'idle', message: '' });
+  const [alergenicosState, setAlergenicosState] = useState<ActionState>({ status: 'idle', message: '' });
+  const [etiquetasLivreState, setEtiquetasLivreState] = useState<ActionState>({ status: 'idle', message: '' });
 
   const triggerWebhook = async (url: string, setState: React.Dispatch<React.SetStateAction<ActionState>>) => {
     setState({ status: 'loading', message: 'Processando...' });
@@ -26,7 +28,7 @@ export default function App() {
       });
 
       if (response.ok) {
-        setState({ status: 'success', message: 'Carga realizada com sucesso!' });
+        setState({ status: 'success', message: 'Ação realizada com sucesso!' });
         setTimeout(() => setState({ status: 'idle', message: '' }), 5000);
       } else {
         throw new Error(`Erro: ${response.statusText}`);
@@ -48,66 +50,11 @@ export default function App() {
 
         {/* Action Cards */}
         <div className="space-y-4">
-          {/* Carga Alergênicos */}
-          <motion.div 
-            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-50 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Carga de Alergênicos</h3>
-                  <p className="text-xs text-[#9e9e9e]">Sincroniza a lista de alérgenos, em média 1 min. e 20 seg.</p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => triggerWebhook(ALERGENICOS_URL, setAlergenicosState)}
-              disabled={alergenicosState.status === 'loading'}
-              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                alergenicosState.status === 'loading' 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
-              }`}
-            >
-              {alergenicosState.status === 'loading' ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              CARGA DE ALERGÊNICOS
-            </button>
-
-            <AnimatePresence>
-              {alergenicosState.status !== 'idle' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
-                    alergenicosState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
-                    alergenicosState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                  }`}
-                >
-                  {alergenicosState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  {alergenicosState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
-                  {alergenicosState.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
           {/* Carga Full Pratos */}
           <motion.div 
             className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -156,12 +103,122 @@ export default function App() {
               )}
             </AnimatePresence>
           </motion.div>
+
+          {/* Carga Alergênicos */}
+          <motion.div 
+            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-50 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Carga de Alergênicos</h3>
+                  <p className="text-xs text-[#9e9e9e]">Sincroniza a lista de alérgenos, em média 1 min. e 20 seg.</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => triggerWebhook(ALERGENICOS_URL, setAlergenicosState)}
+              disabled={alergenicosState.status === 'loading'}
+              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                alergenicosState.status === 'loading' 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
+              }`}
+            >
+              {alergenicosState.status === 'loading' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              CARGA DE ALERGÊNICOS
+            </button>
+
+            <AnimatePresence>
+              {alergenicosState.status !== 'idle' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
+                    alergenicosState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
+                    alergenicosState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+                  }`}
+                >
+                  {alergenicosState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {alergenicosState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {alergenicosState.message}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Colocar Etiquetas em Livre */}
+          <motion.div 
+            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-50 rounded-lg">
+                  <Tag className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Colocar Etiquetas em Livre</h3>
+                  <p className="text-xs text-[#9e9e9e]">Disponibiliza etiquetas para os usuários.</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => triggerWebhook(ETIQUETAS_LIVRE_URL, setEtiquetasLivreState)}
+              disabled={etiquetasLivreState.status === 'loading'}
+              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                etiquetasLivreState.status === 'loading' 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
+              }`}
+            >
+              {etiquetasLivreState.status === 'loading' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Tag className="w-4 h-4" />
+              )}
+              COLOCAR ETIQUETAS EM LIVRE
+            </button>
+
+            <AnimatePresence>
+              {etiquetasLivreState.status !== 'idle' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
+                    etiquetasLivreState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
+                    etiquetasLivreState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+                  }`}
+                >
+                  {etiquetasLivreState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {etiquetasLivreState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {etiquetasLivreState.message}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
 
         {/* Footer Info */}
         <footer className="text-center">
           <p className="text-[10px] text-[#9e9e9e] uppercase tracking-widest">
-            v1.0.0 • Conectado a n8n-railway
+            v1.1.0 • Conectado a n8n-railway
           </p>
         </footer>
       </div>

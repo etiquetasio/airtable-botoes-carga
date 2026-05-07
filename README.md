@@ -32,14 +32,32 @@ block run
 
 ---
 
-### Se o `set-remote` não funcionar:
-Se o comando acima disser que não é um diretório de bloco, faça o seguinte:
-1. Renomeie sua pasta atual para `airtable-botoes-carga-backup`.
-2. Crie uma nova pasta vazia com o nome `airtable-botoes-carga` e entre nela.
-3. Rode o comando init original: `block init appBP7blwMcpT3Qao/blk0FRHFL4SJaAMyY .`
-4. Copie os arquivos da pasta `src` do backup para a nova pasta `src`.
-5. Substitua também os arquivos `block.json`, `package.json` e `vite.config.ts` se necessário.
-6. Rode `block run`.
+### Se o `set-remote` não funcionar ou para repositórios privados:
+Como o repositório no GitHub é **privado**, o comando `--template` não funcionará. Siga exatamente estes passos para configurar:
+
+1. Saia da pasta atual e renomeie-a para um backup:
+   ```bash
+   cd ..
+   ren airtable-botoes-carga airtable-botoes-carga-backup
+   ```
+2. Crie a extensão do zero (substitua pelo seu ID atual se for diferente):
+   ```bash
+   block init appFM4C1E4afDoBrA/blkrPN0JOaQjlCUON airtable-botoes-carga
+   ```
+3. Entre na pasta recém-criada:
+   ```bash
+   cd airtable-botoes-carga
+   ```
+4. Copie os arquivos da pasta de backup para a sua nova pasta:
+   * Copie a pasta `src` inteira.
+   * Copie os arquivos `package.json`, `vite.config.ts` e `block.json`.
+   *(No Windows, você pode arrastar e soltar pelo Explorador de Arquivos para substituir os arquivos originais).*
+
+5. Instale as dependências e rode a extensão:
+   ```bash
+   npm install
+   block run
+   ```
 
 ## Configuração
 
