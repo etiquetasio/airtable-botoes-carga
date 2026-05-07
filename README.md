@@ -7,14 +7,21 @@ Esta é uma extensão customizada para o Airtable que permite disparar webhooks 
 - **Carga de Alergênicos**: Dispara o webhook `https://n8n-railway.etiquetas.io/webhook/alergenicos-vo`.
 - **Carga Full Pratos**: Dispara o webhook `https://n8n-railway.etiquetas.io/webhook/carga-full-vo`.
 
-## Como Instalar no Airtable
+## Como configurar no seu computador
 
-1. Publique este repositório no seu GitHub.
-2. No Airtable, vá em **Extensions** -> **Add an extension**.
-3. Selecione **Build a custom extension**.
-4. Siga as instruções do Airtable CLI para vincular este código à sua extensão.
-   - O projeto já está configurado com `initializeBlock` do SDK do Airtable para garantir a inicialização correta.
-   - Você precisará rodar `npm install` e `block run` ou `block release`.
+1. Clone este repositório no seu computador.
+2. No seu terminal, entre na pasta do projeto.
+3. Se você recebeu um erro sobre `remote.json`, apague a pasta oculta `.block` (ela pode estar oculta).
+4. Como você já tem os arquivos, em vez de `block init`, use o comando `block set-remote` para vincular esta pasta à sua extensão do Airtable:
+   ```bash
+   block set-remote appBP7blwMcpT3Qao/blk0FRHFL4SJaAMyY
+   ```
+5. Agora você pode rodar os comandos normais:
+   ```bash
+   npm install
+   block run
+   ```
+6. No Airtable, sua extensão agora deve carregar o código desta pasta!
 
 ## Configuração
 

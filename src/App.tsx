@@ -42,7 +42,7 @@ export default function App() {
       <div className="max-w-md mx-auto space-y-6">
         {/* Header */}
         <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Painel de Carga VO</h1>
+          <h1 className="text-2xl font-semibold tracking-tight uppercase">Painel de Carga</h1>
           <p className="text-sm text-[#9e9e9e]">Gerencie a sincronização de dados com o n8n.</p>
         </header>
 
