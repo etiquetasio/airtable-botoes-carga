@@ -1,186 +1,149 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertCircle, RefreshCw, Database, ChefHat, Tag } from 'lucide-react';
 
 // Webhook URLs
-const CARGA_FULL_URL = 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-pratos';
-const ALERGENICOS_URL = 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-alergenicos';
-const ETIQUETAS_LIVRE_URL = 'https://n8n-railway.etiquetas.io/webhook/ibira-tudo-livre';
+const WEBHOOKS = {
+  telegram: 'https://n8n-railway.etiquetas.io/webhook/canal-telegram',
+  viradaCafe: 'https://n8n-railway.etiquetas.io/webhook/virada-cafe',
+  pratosAirtable: 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-pratos',
+  logoPullman: 'https://n8n-railway.etiquetas.io/webhook/logo-pullman',
+  logoBase: 'https://n8n-railway.etiquetas.io/webhook/logo-base',
+  cargaImagensAlergenicos: 'https://n8n-railway.etiquetas.io/webhook/pullman-ibira-alergenicos',
+  etiquetasLivre: 'https://n8n-railway.etiquetas.io/webhook/ibira-tudo-livre',
+  statusConta: 'https://n8n-railway.etiquetas.io/webhook/status-conta',
+  backupTemplates: 'https://n8n-railway.etiquetas.io/webhook/backup-templates'
+};
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
-interface ActionState {
-  status: Status;
-  message: string;
-}
-
 export default function App() {
-  const [cargaFullState, setCargaFullState] = useState<ActionState>({ status: 'idle', message: '' });
-  const [alergenicosState, setAlergenicosState] = useState<ActionState>({ status: 'idle', message: '' });
-  const [etiquetasLivreState, setEtiquetasLivreState] = useState<ActionState>({ status: 'idle', message: '' });
+  const [activeStates, setActiveStates] = useState<Record<string, { status: Status; message: string }>>({});
 
-  const triggerWebhook = async (url: string, setState: React.Dispatch<React.SetStateAction<ActionState>>) => {
-    setState({ status: 'loading', message: 'Processando...' });
+  const triggerWebhook = async (id: string, url: string) => {
+    setActiveStates(prev => ({ ...prev, [id]: { status: 'loading', message: 'Processando...' } }));
     
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-      });
+      const response = await fetch(url, { method: 'GET' });
 
       if (response.ok) {
-        setState({ status: 'success', message: 'Ação realizada com sucesso!' });
-        setTimeout(() => setState({ status: 'idle', message: '' }), 5000);
+        setActiveStates(prev => ({ ...prev, [id]: { status: 'success', message: 'Ação realizada com sucesso!' } }));
+        setTimeout(() => {
+          setActiveStates(prev => ({ ...prev, [id]: { status: 'idle', message: '' } }));
+        }, 3000);
       } else {
         throw new Error(`Erro: ${response.statusText}`);
       }
     } catch (error) {
-      setState({ status: 'error', message: error instanceof Error ? error.message : 'Erro desconhecido' });
-      setTimeout(() => setState({ status: 'idle', message: '' }), 8000);
+      setActiveStates(prev => ({ ...prev, [id]: { status: 'error', message: error instanceof Error ? error.message : 'Erro' } }));
+      setTimeout(() => {
+        setActiveStates(prev => ({ ...prev, [id]: { status: 'idle', message: '' } }));
+      }, 3000);
     }
   };
 
+  const getButtonText = (id: string, defaultText: string) => {
+    const state = activeStates[id];
+    if (state?.status === 'loading') return 'PROCESSANDO...';
+    if (state?.status === 'success') return 'SUCESSO!';
+    if (state?.status === 'error') return 'ERRO!';
+    return defaultText;
+  };
+
   return (
-    <div className="min-h-screen bg-[#f5f5f5] p-6 font-sans text-[#1a1a1a]">
-      <div className="max-w-md mx-auto space-y-6">
+    <div className="min-h-screen bg-white p-6 font-sans text-[#1a1a1a] flex flex-col items-start justify-start pt-10">
+      <div className="max-w-md mx-auto space-y-6 w-full">
         {/* Header */}
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight uppercase">SINCRONIZAÇÃO DOS DADOS</h1>
-          <p className="text-xs text-[#9e9e9e]">Sincroniza os dados do Airtable com o sistema das etiquetas eletrônicas by @etiquetas.io</p>
+        <header className="space-y-4 mb-8">
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Pullman_logo_2013.svg/1280px-Pullman_logo_2013.svg.png" 
+            alt="Pullman Logo" 
+            className="h-12 w-auto"
+            referrerPolicy="no-referrer"
+          />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight uppercase">SINCRONIZAÇÃO DOS DADOS</h1>
+            <p className="text-xs text-[#9e9e9e]">Sincroniza os dados do Airtable com o sistema das etiquetas eletrônicas by @etiquetas.io</p>
+          </div>
         </header>
 
-        {/* Action Cards */}
-        <div className="space-y-4">
-          {/* Carga Full Pratos */}
-          <motion.div 
-            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+        <div className="flex flex-col gap-2 w-full items-start">
+          <button
+            onClick={() => triggerWebhook('telegram', WEBHOOKS.telegram)}
+          disabled={activeStates['telegram']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-[#FF00FF] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('telegram', 'CANAL DO TELEGRAM')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('viradaCafe', WEBHOOKS.viradaCafe)}
+          disabled={activeStates['viradaCafe']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-[#00B050] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('viradaCafe', 'VIRADA CAFÉ DA MANHÃ MANUAL')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('pratosAirtable', WEBHOOKS.pratosAirtable)}
+          disabled={activeStates['pratosAirtable']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-[#FFFF00] text-[#FF0000] hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('pratosAirtable', 'PRATOS NO AIRTABLE')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('logoPullman', WEBHOOKS.logoPullman)}
+          disabled={activeStates['logoPullman']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-black text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('logoPullman', 'MUDAR LOGO PARA PULLMAN')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('logoBase', WEBHOOKS.logoBase)}
+          disabled={activeStates['logoBase']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-black text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('logoBase', 'MUDAR LOGO PARA BASE')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('cargaImagensAlergenicos', WEBHOOKS.cargaImagensAlergenicos)}
+          disabled={activeStates['cargaImagensAlergenicos']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-[#FF0000] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('cargaImagensAlergenicos', 'CARGA IMAGENS ALERGÊNICOS')}
+        </button>
+
+        <button
+          onClick={() => triggerWebhook('etiquetasLivre', WEBHOOKS.etiquetasLivre)}
+          disabled={activeStates['etiquetasLivre']?.status === 'loading'}
+          className="px-6 py-3 rounded text-sm font-semibold bg-[#3B82F6] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
+        >
+          {getButtonText('etiquetasLivre', 'COLOCAR ETIQUETAS EM LIVRE')}
+        </button>
+
+        <div className="flex flex-row gap-2">
+          <button
+            onClick={() => triggerWebhook('statusConta', WEBHOOKS.statusConta)}
+            disabled={activeStates['statusConta']?.status === 'loading'}
+            className="px-6 py-3 rounded text-sm font-semibold bg-[#ED7D31] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
           >
-            <button
-              onClick={() => triggerWebhook(CARGA_FULL_URL, setCargaFullState)}
-              disabled={cargaFullState.status === 'loading'}
-              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                cargaFullState.status === 'loading' 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
-              }`}
-            >
-              {cargaFullState.status === 'loading' ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Database className="w-4 h-4" />
-              )}
-              CARGA FULL PRATOS
-            </button>
-
-            <AnimatePresence>
-              {cargaFullState.status !== 'idle' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
-                    cargaFullState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
-                    cargaFullState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                  }`}
-                >
-                  {cargaFullState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  {cargaFullState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
-                  {cargaFullState.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Carga Alergênicos */}
-          <motion.div 
-            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            {getButtonText('statusConta', 'STATUS SUA CONTA')}
+          </button>
+          
+          <button
+            onClick={() => triggerWebhook('backupTemplates', WEBHOOKS.backupTemplates)}
+            disabled={activeStates['backupTemplates']?.status === 'loading'}
+            className="px-6 py-3 rounded text-sm font-semibold bg-[#ED7D31] text-white hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-50"
           >
-            <button
-              onClick={() => triggerWebhook(ALERGENICOS_URL, setAlergenicosState)}
-              disabled={alergenicosState.status === 'loading'}
-              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                alergenicosState.status === 'loading' 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
-              }`}
-            >
-              {alergenicosState.status === 'loading' ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              CARGA DE ALERGÊNICOS
-            </button>
-
-            <AnimatePresence>
-              {alergenicosState.status !== 'idle' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
-                    alergenicosState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
-                    alergenicosState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                  }`}
-                >
-                  {alergenicosState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  {alergenicosState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
-                  {alergenicosState.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Colocar Etiquetas em Livre */}
-          <motion.div 
-            className="bg-white rounded-2xl p-5 shadow-sm border border-black/5 flex flex-col gap-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <button
-              onClick={() => triggerWebhook(ETIQUETAS_LIVRE_URL, setEtiquetasLivreState)}
-              disabled={etiquetasLivreState.status === 'loading'}
-              className={`w-full py-3 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                etiquetasLivreState.status === 'loading' 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-[#1a1a1a] text-white hover:bg-black active:scale-[0.98]'
-              }`}
-            >
-              {etiquetasLivreState.status === 'loading' ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Tag className="w-4 h-4" />
-              )}
-              COLOCAR ETIQUETAS EM LIVRE
-            </button>
-
-            <AnimatePresence>
-              {etiquetasLivreState.status !== 'idle' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className={`text-xs p-3 rounded-lg flex items-center gap-2 ${
-                    etiquetasLivreState.status === 'success' ? 'bg-emerald-50 text-emerald-700' : 
-                    etiquetasLivreState.status === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                  }`}
-                >
-                  {etiquetasLivreState.status === 'success' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  {etiquetasLivreState.status === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
-                  {etiquetasLivreState.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+            {getButtonText('backupTemplates', 'BACKUP TEMPLATES')}
+          </button>
+        </div>
         </div>
 
         {/* Footer Info */}
-        <footer className="text-center">
+        <footer className="text-center mt-12 pb-6">
           <p className="text-[10px] text-[#9e9e9e] uppercase tracking-widest">
             v1.1.0 • Conectado a n8n-railway
           </p>
