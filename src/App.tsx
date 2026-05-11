@@ -44,8 +44,8 @@ export default function App() {
       <div className="max-w-md mx-auto space-y-6">
         {/* Header */}
         <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight uppercase">Painel de Carga</h1>
-          <p className="text-sm text-[#9e9e9e]">Gerencie a sincronização de dados com o n8n.</p>
+          <h1 className="text-2xl font-semibold tracking-tight uppercase">SINCRONIZAÇÃO DOS DADOS</h1>
+          <p className="text-xs text-[#9e9e9e]">Sincroniza os dados do Airtable com o sistema das etiquetas eletrônicas by @etiquetas.io</p>
         </header>
 
         {/* Action Cards */}
@@ -56,18 +56,6 @@ export default function App() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <ChefHat className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Carga Full Pratos</h3>
-                  <p className="text-xs text-[#9e9e9e]">Sincronização completa do cardápio, em média 20 segundos.</p>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => triggerWebhook(CARGA_FULL_URL, setCargaFullState)}
               disabled={cargaFullState.status === 'loading'}
@@ -111,18 +99,6 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-50 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Carga de Alergênicos</h3>
-                  <p className="text-xs text-[#9e9e9e]">Sincroniza a lista de alérgenos, em média 1 min. e 20 seg.</p>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => triggerWebhook(ALERGENICOS_URL, setAlergenicosState)}
               disabled={alergenicosState.status === 'loading'}
@@ -166,18 +142,6 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-50 rounded-lg">
-                  <Tag className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Colocar Etiquetas em Livre</h3>
-                  <p className="text-xs text-[#9e9e9e]">Disponibiliza etiquetas para os usuários.</p>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => triggerWebhook(ETIQUETAS_LIVRE_URL, setEtiquetasLivreState)}
               disabled={etiquetasLivreState.status === 'loading'}
